@@ -17,6 +17,7 @@
             <button class="tab-button active" onclick="showTab('weight')">體重記錄</button>
             <button class="tab-button" onclick="showTab('water')">喝水追蹤</button>
             <button class="tab-button" onclick="showTab('meals')">飲食計劃</button>
+            <button class="tab-button" onclick="showTab('backup')">備份資料</button>
         </div>
 
         <!-- 體重追蹤 -->
@@ -111,6 +112,50 @@
             <div class="card">
                 <h2>飲食計劃與記錄</h2>
                 <div id="meals-list" class="record-list"></div>
+            </div>
+        </div>
+
+        <!-- 備份資料 -->
+        <div id="backup-tab" class="tab-content">
+            <div class="card">
+                <h2>📦 匯出資料</h2>
+                <p style="color: #666; margin-bottom: 15px;">將所有健康記錄匯出為檔案，保存到你的手機中</p>
+                <div class="backup-info">
+                    <div class="info-item">
+                        <span class="info-label">體重記錄：</span>
+                        <span id="backup-weight-count" class="info-value">0 筆</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">喝水記錄：</span>
+                        <span id="backup-water-count" class="info-value">0 天</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">飲食記錄：</span>
+                        <span id="backup-meal-count" class="info-value">0 筆</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">成就徽章：</span>
+                        <span id="backup-achievement-count" class="info-value">0 個</span>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="exportData()">💾 匯出所有資料</button>
+                <p style="color: #999; font-size: 0.9em; margin-top: 10px;">檔案會以 JSON 格式儲存到你的手機</p>
+            </div>
+
+            <div class="card">
+                <h2>📥 匯入資料</h2>
+                <p style="color: #666; margin-bottom: 15px;">從之前匯出的檔案中恢復你的健康記錄</p>
+                <div class="warning-box">
+                    <strong>⚠️ 注意：</strong>匯入資料會<strong>覆蓋</strong>目前所有記錄！建議先匯出目前的資料備份。
+                </div>
+                <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+                <button class="btn-primary" onclick="document.getElementById('import-file').click()">📂 選擇備份檔案</button>
+            </div>
+
+            <div class="card">
+                <h2>🗑️ 清除所有資料</h2>
+                <p style="color: #666; margin-bottom: 15px;">永久刪除所有記錄（此操作無法復原）</p>
+                <button class="btn-danger" onclick="clearAllData()">清除所有資料</button>
             </div>
         </div>
     </div>

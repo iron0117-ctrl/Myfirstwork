@@ -544,6 +544,50 @@ header h1 {
     transform: translateY(-2px);
 }
 
+/* 備份資料區域樣式 */
+.backup-info {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #555;
+}
+
+.info-value {
+    font-weight: bold;
+    color: #667eea;
+    font-size: 1.1em;
+}
+
+.warning-box {
+    background: linear-gradient(135deg, #FFF3CD 0%, #FFE8A1 100%);
+    border-left: 4px solid #FFA500;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: #856404;
+    line-height: 1.6;
+}
+
+.warning-box strong {
+    color: #d9534f;
+}
+
 @media (max-width: 768px) {
     .container {
         border-radius: 0;

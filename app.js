@@ -28,6 +28,11 @@ function showTab(tabName) {
     // 顯示選中的標籤
     document.getElementById(tabName + '-tab').classList.add('active');
     event.target.classList.add('active');
+
+    // 如果切換到備份標籤，載入備份資訊
+    if (tabName === 'backup') {
+        loadBackupInfo();
+    }
 }
 
 // ==================== 體重追蹤 ====================
@@ -506,4 +511,145 @@ function animateNumber(elementId) {
     const element = document.getElementById(elementId);
     element.classList.add('number-pop');
     setTimeout(() => element.classList.remove('number-pop'), 300);
+}
+
+// ==================== 備份與恢復 ====================
+function loadBackupInfo() {
+    const weights = JSON.parse(localStorage.getItem('weights')) || [];
+    const waterData = JSON.parse(localStorage.getItem('waterData')) || {};
+    const meals = JSON.parse(localStorage.getItem('meals')) || [];
+    const achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+
+    document.getElementById('backup-weight-count').textContent = `${weights.length} 筆`;
+    document.getElementById('backup-water-count').textContent = `${Object.keys(waterData).length} 天`;
+    document.getElementById('backup-meal-count').textContent = `${meals.length} 筆`;
+    document.getElementById('backup-achievement-count').textContent = `${achievements.length} 個`;
+}
+
+function exportData() {
+    try {
+        // 收集所有資料
+        const allData = {
+            version: '1.0',
+            exportDate: new Date().toISOString(),
+            data: {
+                weights: JSON.parse(localStorage.getItem('weights')) || [],
+                waterData: JSON.parse(localStorage.getItem('waterData')) || {},
+                waterGoal: localStorage.getItem('waterGoal') || '2000',
+                meals: JSON.parse(localStorage.getItem('meals')) || [],
+                achievements: JSON.parse(localStorage.getItem('achievements')) || []
+            }
+        };
+
+        // 轉換為 JSON 字串
+        const dataStr = JSON.stringify(allData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+        // 建立下載連結
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        // 檔案名稱包含日期
+        const date = new Date().toISOString().split('T')[0];
+        link.download = `健康追蹤備份_${date}.json`;
+
+        // 觸發下載
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        // 顯示成功訊息
+        alert('✅ 資料已成功匯出！\n檔案已儲存到你的手機下載資料夾。');
+
+    } catch (error) {
+        console.error('匯出失敗：', error);
+        alert('❌ 匯出失敗，請稍後再試。');
+    }
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 確認操作
+    if (!confirm('⚠️ 匯入資料會覆蓋目前所有記錄！\n\n確定要繼續嗎？')) {
+        event.target.value = ''; // 清空檔案選擇
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        try {
+            const importedData = JSON.parse(e.target.result);
+
+            // 驗證資料格式
+            if (!importedData.version || !importedData.data) {
+                throw new Error('無效的備份檔案格式');
+            }
+
+            // 恢復所有資料
+            localStorage.setItem('weights', JSON.stringify(importedData.data.weights || []));
+            localStorage.setItem('waterData', JSON.stringify(importedData.data.waterData || {}));
+            localStorage.setItem('waterGoal', importedData.data.waterGoal || '2000');
+            localStorage.setItem('meals', JSON.stringify(importedData.data.meals || []));
+            localStorage.setItem('achievements', JSON.stringify(importedData.data.achievements || []));
+
+            // 重新載入所有資料
+            loadWeightRecords();
+            loadWaterData();
+            loadMeals();
+            loadBackupInfo();
+
+            alert('✅ 資料已成功匯入！\n\n所有記錄已恢復。');
+
+        } catch (error) {
+            console.error('匯入失敗：', error);
+            alert('❌ 匯入失敗！\n請確認檔案格式正確。');
+        }
+
+        // 清空檔案選擇
+        event.target.value = '';
+    };
+
+    reader.onerror = function() {
+        alert('❌ 讀取檔案失敗，請稍後再試。');
+        event.target.value = '';
+    };
+
+    reader.readAsText(file);
+}
+
+function clearAllData() {
+    // 二次確認
+    if (!confirm('⚠️ 警告！此操作將永久刪除所有記錄！\n\n確定要繼續嗎？')) {
+        return;
+    }
+
+    if (!confirm('⚠️ 最後確認！\n\n真的要刪除所有資料嗎？此操作無法復原！')) {
+        return;
+    }
+
+    try {
+        // 清除所有 localStorage 資料
+        localStorage.removeItem('weights');
+        localStorage.removeItem('waterData');
+        localStorage.removeItem('waterGoal');
+        localStorage.removeItem('meals');
+        localStorage.removeItem('achievements');
+
+        // 重新載入所有頁面
+        loadWeightRecords();
+        loadWaterData();
+        loadMeals();
+        loadBackupInfo();
+
+        alert('✅ 所有資料已清除！');
+
+    } catch (error) {
+        console.error('清除失敗：', error);
+        alert('❌ 清除失敗，請稍後再試。');
+    }
 }
