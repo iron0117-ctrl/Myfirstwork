@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健康追蹤應用程式</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💪 我的健康追蹤</h1>
+            <p class="subtitle">追蹤體重、喝水量和飲食計劃</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('weight')">體重記錄</button>
+            <button class="tab-button" onclick="showTab('water')">喝水追蹤</button>
+            <button class="tab-button" onclick="showTab('meals')">飲食計劃</button>
+        </div>
+
+        <!-- 體重追蹤 -->
+        <div id="weight-tab" class="tab-content active">
+            <div class="card">
+                <h2>記錄體重</h2>
+                <div class="input-group">
+                    <label for="weight-date">日期：</label>
+                    <input type="date" id="weight-date">
+                </div>
+                <div class="input-group">
+                    <label for="weight-value">體重 (公斤)：</label>
+                    <input type="number" id="weight-value" step="0.1" placeholder="例如：65.5">
+                </div>
+                <button class="btn-primary" onclick="addWeight()">新增記錄</button>
+            </div>
+
+            <div class="card">
+                <h2>體重歷史記錄</h2>
+                <div id="weight-list" class="record-list"></div>
+            </div>
+        </div>
+
+        <!-- 喝水追蹤 -->
+        <div id="water-tab" class="tab-content">
+            <div class="card">
+                <h2>今日喝水量</h2>
+                <div class="water-display">
+                    <div class="water-amount">
+                        <span id="water-today">0</span> / <span id="water-goal">2000</span> ml
+                    </div>
+                    <div class="progress-bar">
+                        <div id="water-progress" class="progress-fill"></div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="water-amount">新增水量 (ml)：</label>
+                    <input type="number" id="water-amount" placeholder="例如：250">
+                </div>
+                <div class="quick-add">
+                    <button class="btn-secondary" onclick="addWater(250)">+250ml</button>
+                    <button class="btn-secondary" onclick="addWater(500)">+500ml</button>
+                    <button class="btn-secondary" onclick="addWater(1000)">+1000ml</button>
+                </div>
+                <button class="btn-primary" onclick="addCustomWater()">新增自訂水量</button>
+                <button class="btn-danger" onclick="resetWater()">重置今日</button>
+            </div>
+
+            <div class="card">
+                <h2>設定每日目標</h2>
+                <div class="input-group">
+                    <label for="water-goal-input">目標水量 (ml)：</label>
+                    <input type="number" id="water-goal-input" placeholder="例如：2000">
+                </div>
+                <button class="btn-primary" onclick="setWaterGoal()">設定目標</button>
+            </div>
+
+            <div class="card">
+                <h2>喝水歷史記錄</h2>
+                <div id="water-history" class="record-list"></div>
+            </div>
+        </div>
+
+        <!-- 飲食計劃 -->
+        <div id="meals-tab" class="tab-content">
+            <div class="card">
+                <h2>新增飲食記錄</h2>
+                <div class="input-group">
+                    <label for="meal-date">日期：</label>
+                    <input type="date" id="meal-date">
+                </div>
+                <div class="input-group">
+                    <label for="meal-type">餐別：</label>
+                    <select id="meal-type">
+                        <option value="早餐">早餐</option>
+                        <option value="午餐">午餐</option>
+                        <option value="晚餐">晚餐</option>
+                        <option value="點心">點心</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="meal-description">內容：</label>
+                    <textarea id="meal-description" rows="3" placeholder="例如：雞胸肉沙拉、糙米飯"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="meal-calories">熱量 (大卡，選填)：</label>
+                    <input type="number" id="meal-calories" placeholder="例如：500">
+                </div>
+                <button class="btn-primary" onclick="addMeal()">新增記錄</button>
+            </div>
+
+            <div class="card">
+                <h2>飲食計劃與記錄</h2>
+                <div id="meals-list" class="record-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
