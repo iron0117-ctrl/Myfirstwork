@@ -62,7 +62,11 @@ function addWeight() {
     // 重新載入列表
     loadWeightRecords();
 
-    alert('體重記錄新增成功！');
+    // 顯示鼓勵訊息
+    showMotivationalMessage('weight');
+
+    // 檢查成就
+    checkAchievements();
 }
 
 function loadWeightRecords() {
@@ -119,11 +123,13 @@ function loadWaterData() {
 function addWater(amount) {
     const today = new Date().toISOString().split('T')[0];
     const waterData = JSON.parse(localStorage.getItem('waterData')) || {};
+    const goal = parseInt(localStorage.getItem('waterGoal')) || 2000;
 
     if (!waterData[today]) {
         waterData[today] = { amount: 0, records: [] };
     }
 
+    const oldAmount = waterData[today].amount;
     waterData[today].amount += amount;
     waterData[today].records.push({
         time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
@@ -132,6 +138,20 @@ function addWater(amount) {
 
     localStorage.setItem('waterData', JSON.stringify(waterData));
     loadWaterData();
+
+    // 數字跳動動畫
+    animateNumber('water-today');
+
+    // 檢查是否達成目標
+    if (oldAmount < goal && waterData[today].amount >= goal) {
+        showMotivationalMessage('waterGoal');
+        createCelebration();
+    } else {
+        showMotivationalMessage('water');
+    }
+
+    // 檢查成就
+    checkAchievements();
 }
 
 function addCustomWater() {
@@ -258,7 +278,11 @@ function addMeal() {
     // 重新載入列表
     loadMeals();
 
-    alert('飲食記錄新增成功！');
+    // 顯示鼓勵訊息
+    showMotivationalMessage('meal');
+
+    // 檢查成就
+    checkAchievements();
 }
 
 function loadMeals() {
@@ -328,4 +352,158 @@ function formatDate(dateString) {
     const weekday = weekdays[date.getDay()];
 
     return `${year}/${month}/${day} (${weekday})`;
+}
+
+// ==================== 鼓勵訊息系統 ====================
+const motivationalMessages = {
+    weight: [
+        '太棒了！堅持記錄是成功的第一步！💪',
+        '每一次記錄都是進步的證明！⭐',
+        '你做得很好！持續追蹤會看到成果！🎯',
+        '加油！健康的身體從現在開始！🌟'
+    ],
+    water: [
+        '好棒！記得多喝水保持健康！💧',
+        '太好了！你正在養成好習慣！✨',
+        '繼續保持！水分補充很重要！🌊',
+        '做得好！你的身體會感謝你！💙'
+    ],
+    waterGoal: [
+        '🎉 太棒了！你達成今日喝水目標了！',
+        '🌟 恭喜！繼續保持這個好習慣！',
+        '⭐ 太厲害了！你做到了！',
+        '💪 成功達標！為自己驕傲吧！'
+    ],
+    meal: [
+        '很好！記錄飲食幫助你更了解自己！🍽️',
+        '太棒了！健康飲食從記錄開始！🥗',
+        '做得好！你正在變得更健康！🌱',
+        '加油！每一餐都很重要！✨'
+    ]
+};
+
+function showMotivationalMessage(type) {
+    const messages = motivationalMessages[type];
+    const message = messages[Math.floor(Math.random() * messages.length)];
+
+    // 創建訊息元素
+    const messageEl = document.createElement('div');
+    messageEl.className = 'motivational-message';
+    messageEl.textContent = message;
+
+    // 找到當前標籤頁的第一個卡片並插入訊息
+    const activeTab = document.querySelector('.tab-content.active');
+    const firstCard = activeTab.querySelector('.card');
+    firstCard.parentNode.insertBefore(messageEl, firstCard);
+
+    // 3秒後移除訊息
+    setTimeout(() => {
+        messageEl.style.transition = 'all 0.5s ease-out';
+        messageEl.style.opacity = '0';
+        messageEl.style.transform = 'translateY(-20px)';
+        setTimeout(() => messageEl.remove(), 500);
+    }, 3000);
+}
+
+// ==================== 慶祝特效 ====================
+function createCelebration() {
+    const celebration = document.createElement('div');
+    celebration.className = 'celebration';
+    document.body.appendChild(celebration);
+
+    // 創建彩紙
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
+
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        celebration.appendChild(confetti);
+    }
+
+    // 3秒後移除慶祝效果
+    setTimeout(() => celebration.remove(), 3000);
+}
+
+// ==================== 成就系統 ====================
+function checkAchievements() {
+    const weights = JSON.parse(localStorage.getItem('weights')) || [];
+    const waterData = JSON.parse(localStorage.getItem('waterData')) || {};
+    const meals = JSON.parse(localStorage.getItem('meals')) || [];
+    const achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+
+    const newAchievements = [];
+
+    // 體重記錄成就
+    if (weights.length >= 1 && !achievements.includes('first_weight')) {
+        newAchievements.push({ id: 'first_weight', text: '🎯 首次記錄體重' });
+    }
+    if (weights.length >= 7 && !achievements.includes('week_weight')) {
+        newAchievements.push({ id: 'week_weight', text: '📊 連續記錄7天體重' });
+    }
+    if (weights.length >= 30 && !achievements.includes('month_weight')) {
+        newAchievements.push({ id: 'month_weight', text: '🏆 記錄30天體重' });
+    }
+
+    // 喝水記錄成就
+    const waterDays = Object.keys(waterData).length;
+    if (waterDays >= 1 && !achievements.includes('first_water')) {
+        newAchievements.push({ id: 'first_water', text: '💧 首次記錄喝水' });
+    }
+    if (waterDays >= 7 && !achievements.includes('week_water')) {
+        newAchievements.push({ id: 'week_water', text: '🌊 連續記錄7天喝水' });
+    }
+
+    // 飲食記錄成就
+    if (meals.length >= 1 && !achievements.includes('first_meal')) {
+        newAchievements.push({ id: 'first_meal', text: '🍽️ 首次記錄飲食' });
+    }
+    if (meals.length >= 21 && !achievements.includes('week_meals')) {
+        newAchievements.push({ id: 'week_meals', text: '🥗 記錄一週三餐' });
+    }
+
+    // 顯示新成就
+    if (newAchievements.length > 0) {
+        showAchievements(newAchievements);
+        // 儲存成就
+        newAchievements.forEach(a => achievements.push(a.id));
+        localStorage.setItem('achievements', JSON.stringify(achievements));
+    }
+}
+
+function showAchievements(achievements) {
+    const activeTab = document.querySelector('.tab-content.active');
+    const firstCard = activeTab.querySelector('.card');
+
+    const container = document.createElement('div');
+    container.className = 'achievement-container';
+    container.innerHTML = `
+        <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #FF6B00;">
+            🎉 恭喜獲得新成就！
+        </div>
+        ${achievements.map(a => `<span class="achievement-badge">${a.text}</span>`).join('')}
+    `;
+
+    firstCard.parentNode.insertBefore(container, firstCard);
+
+    // 播放慶祝動畫
+    createCelebration();
+
+    // 5秒後移除
+    setTimeout(() => {
+        container.style.transition = 'all 0.5s ease-out';
+        container.style.opacity = '0';
+        container.style.transform = 'translateY(-20px)';
+        setTimeout(() => container.remove(), 500);
+    }, 5000);
+}
+
+// ==================== 數字跳動效果 ====================
+function animateNumber(elementId) {
+    const element = document.getElementById(elementId);
+    element.classList.add('number-pop');
+    setTimeout(() => element.classList.remove('number-pop'), 300);
 }
